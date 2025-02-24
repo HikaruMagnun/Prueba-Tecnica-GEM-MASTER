@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prueba API Categorías</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      h1 {
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input,
+      button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .response {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>API de Categorías</h1>
+
+      <!-- Listar todas las categorías -->
+      <button onclick="getAllCategories()">Listar Categorías</button>
+
+      <!-- Crear una nueva categoría -->
+      <h2>Crear Categoría</h2>
+      <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" placeholder="Nombre de la categoría" />
+      </div>
+      <div class="form-group">
+        <label for="descripcion">Descripción:</label>
+        <input
+          type="text"
+          id="descripcion"
+          placeholder="Descripción de la categoría"
+        />
+      </div>
+      <button onclick="createCategory()">Crear Categoría</button>
+
+      <!-- Actualizar una categoría -->
+      <h2>Actualizar Categoría</h2>
+      <div class="form-group">
+        <label for="idUpdate">ID:</label>
+        <input type="number" id="idUpdate" placeholder="ID de la categoría" />
+      </div>
+      <div class="form-group">
+        <label for="nombreUpdate">Nuevo Nombre:</label>
+        <input type="text" id="nombreUpdate" placeholder="Nuevo nombre" />
+      </div>
+      <div class="form-group">
+        <label for="descripcionUpdate">Nueva Descripción:</label>
+        <input
+          type="text"
+          id="descripcionUpdate"
+          placeholder="Nueva descripción"
+        />
+      </div>
+      <button onclick="updateCategory()">Actualizar Categoría</button>
+
+      <!-- Eliminar una categoría -->
+      <h2>Eliminar Categoría</h2>
+      <div class="form-group">
+        <label for="idDelete">ID:</label>
+        <input type="number" id="idDelete" placeholder="ID de la categoría" />
+      </div>
+      <button onclick="deleteCategory()">Eliminar Categoría</button>
+
+      <!-- Respuesta -->
+      <div class="response" id="response"></div>
+    </div>
+
+    <script>
+      const baseUrl = "http://localhost:8080/api/v1/categorias";
+
+      // Función para mostrar la respuesta en la página
+      function showResponse(message) {
+        document.getElementById("response").innerText = JSON.stringify(
+          message,
+          null,
+          2
+        );
+      }
+
+      // Obtener todas las categorías
+      async function getAllCategories() {
+        try {
+          const response = await fetch(baseUrl);
+          if (!response.ok) throw new Error("Error al obtener categorías");
+          const data = await response.json();
+          showResponse(data);
+        } catch (error) {
+          showResponse({ error: error.message });
+        }
+      }
+
+      // Crear una nueva categoría
+      async function createCategory() {
+        const nombre = document.getElementById("nombre").value;
+        const descripcion = document.getElementById("descripcion").value;
+
+        if (!nombre || !descripcion) {
+          return alert("Por favor, completa todos los campos.");
+        }
+
+        try {
+          const response = await fetch(baseUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, descripcion }),
+          });
+
+          if (!response.ok) throw new Error("Error al crear categoría");
+          const data = await response.json();
+          showResponse(data);
+        } catch (error) {
+          showResponse({ error: error.message });
+        }
+      }
+
+      // Actualizar una categoría
+      async function updateCategory() {
+        const id = document.getElementById("idUpdate").value;
+        const nombre = document.getElementById("nombreUpdate").value;
+        const descripcion = document.getElementById("descripcionUpdate").value;
+
+        if (!id || !nombre || !descripcion) {
+          return alert("Por favor, completa todos los campos.");
+        }
+
+        try {
+          const response = await fetch(`${baseUrl}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nombre, descripcion }),
+          });
+
+          if (!response.ok) throw new Error("Error al actualizar categoría");
+          const data = await response.json();
+          showResponse(data);
+        } catch (error) {
+          showResponse({ error: error.message });
+        }
+      }
+
+      // Eliminar una categoría
+      async function deleteCategory() {
+        const id = document.getElementById("idDelete").value;
+
+        if (!id) {
+          return alert("Por favor, ingresa el ID de la categoría.");
+        }
+
+        try {
+          const response = await fetch(`${baseUrl}/${id}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) throw new Error("Error al eliminar categoría");
+          showResponse({ message: "Categoría eliminada exitosamente" });
+        } catch (error) {
+          showResponse({ error: error.message });
+        }
+      }
+    </script>
+  </body>
+</html>
